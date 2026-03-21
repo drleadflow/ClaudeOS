@@ -1,0 +1,13 @@
+# Personal overrides (not shared)
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Session archives (local only)
+.claude/sessions/
+
+# Structured logs (local only, can grow large)
+.claude/logs/
+
+# OS files
+.DS_Store
+Thumbs.db
