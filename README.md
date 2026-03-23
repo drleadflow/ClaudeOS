@@ -59,7 +59,7 @@ Once set up, every Claude session gets:
 | **Agents** | 2 + template | self-critic (quality check), policy-refiner (self-improvement) |
 | **Skills** | 3 + template | yt-search, research-daemon, youtube-pipeline |
 | **Commands** | 3 | /yt-search, /youtube-pipeline, /update-context |
-| **Rules** | 7 | coding-style, testing, security, operations, platform-selection, multi-platform-workflow, token-budgeting |
+| **Rules** | 4 | operations, platform-selection, multi-platform-workflow, token-budgeting |
 | **Hindsight Patterns** | 4 | Loop detection, structural analysis, compact output, file ownership |
 
 ## Project Structure
@@ -77,7 +77,7 @@ ClaudeOS/
     agents/                        # self-critic, policy-refiner, _template
     commands/                      # /yt-search, /youtube-pipeline, /update-context
     skills/                        # yt-search, research-daemon, youtube-pipeline, _template
-    rules/                         # 7 modular policy files
+    rules/                         # 4 modular policy files (add your own here)
     hooks/                         # 5 automation scripts
     hindsight/PATTERNS.md          # Layer 4: Behavioral learning
     errors/                        # Error log + pattern promotion

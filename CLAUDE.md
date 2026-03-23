@@ -117,9 +117,6 @@ ClaudeOS/
         SKILL.md                   # Skill definition with gotchas section
         references/                # Examples, scripts, templates (progressive disclosure)
     rules/                         # Modular policy files (keeps CLAUDE.md lean)
-      coding-style.md              # Immutability, file org, error handling
-      testing.md                   # TDD, coverage, test isolation
-      security.md                  # Secrets, input safety, error messages
       operations.md                # Deployments, destructive actions, resources
       platform-selection.md        # When to use Claude vs other AI platforms
       multi-platform-workflow.md   # 6-phase development lifecycle
@@ -273,13 +270,12 @@ See `.claude/rules/` for full guidance:
 
 | Rule File | Domain |
 |-----------|--------|
-| `coding-style.md` | Immutability, file org, error handling |
-| `testing.md` | TDD, coverage, test isolation |
-| `security.md` | Secrets, input safety, error messages |
 | `operations.md` | Deployments, destructive actions, resources |
 | `platform-selection.md` | When to use Claude vs other AI platforms |
 | `multi-platform-workflow.md` | 6-phase development lifecycle |
 | `token-budgeting.md` | Agentic mode costs, monitoring, platform comparison |
+
+**Note:** Common rules (coding-style, testing, security) belong in your global `~/.claude/rules/` so they apply to all projects. This template includes only rules specific to the ClaudeOS workflow. Add your own project-specific rules here.
 
 ## Getting Started
 
@@ -299,4 +295,4 @@ This makes hooks executable and creates your personal config files. Then customi
 
 ## Status
 
-All 5 memory layers implemented. Self-improvement loop (observe → reflect → commit) fully wired. Three skills, two agents, three commands, seven rule files, five hooks built. Multi-platform workflow architecture documented.
+All 5 memory layers implemented. Self-improvement loop (observe → reflect → commit) fully wired. Three skills, two agents, three commands, four rule files, five hooks built. Multi-platform workflow architecture documented. Common rules (coding-style, testing, security) belong in your global `~/.claude/rules/` — this template includes only workflow-specific rules.
