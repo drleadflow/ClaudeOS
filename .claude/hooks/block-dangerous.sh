@@ -17,10 +17,16 @@ COMMAND=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); p
 BLOCKED=0
 REASON=""
 
-# rm -rf with root or broad paths
-if echo "$COMMAND" | grep -qE 'rm\s+(-[a-zA-Z]*f[a-zA-Z]*\s+|--force\s+)*(\/|~|\.\.)'; then
+# rm -rf targeting root, home, or parent (but NOT rm of specific deep paths)
+# Blocks: rm -rf /, rm -rf ~, rm -rf .., rm -rf /usr, rm -rf ~/
+# Allows: rm /path/to/specific/file.txt, rm -f /deep/nested/thing
+if echo "$COMMAND" | grep -qE 'rm\s+(-[a-zA-Z]*r[a-zA-Z]*\s+)+(/\s|/$|~/|~\s|~$|\.\.)'; then
     BLOCKED=1
-    REASON="Destructive rm targeting root, home, or parent directory"
+    REASON="Recursive rm targeting root, home, or parent directory"
+fi
+if echo "$COMMAND" | grep -qE 'rm\s+(-[a-zA-Z]*r[a-zA-Z]*\s+)+/[a-zA-Z]+\s*$'; then
+    BLOCKED=1
+    REASON="Recursive rm targeting top-level directory"
 fi
 
 # Fork bomb patterns

@@ -22,7 +22,17 @@ Claude's effectiveness depends on layered context. Each layer does something the
 | 2. Primer | `.claude/PRIMER.md` | Session handoff. Rewrites itself at the end of every session: active project, last completed, next steps, open blockers. Always current. | Always loaded |
 | 3. Memory | `.claude/hooks/memory.sh` | Live context injection. Last 5 git commits, modified files, current branch. Claude knows what changed before you say a word. | SessionStart hook |
 | 4. Hindsight | `.claude/hindsight/PATTERNS.md` | Behavioral patterns extracted from previous sessions. Not what happened — how Claude should respond differently. Actual learning. | Always loaded + Stop hook extracts new patterns |
-| 5. Knowledge Base | Obsidian vault (`~/Desktop/Obsidian/Obsidian/`) | Full knowledge base as Claude's working directory. Every note ever written becomes available context. Has its own CLAUDE.md (brain within the brain). | Always available when Claude runs from the vault |
+| 5. Knowledge Base | External vault or docs | Full knowledge base as Claude's working directory. Every note ever written becomes available context. Example: an Obsidian vault with its own CLAUDE.md. | Always available when Claude runs from the vault |
+
+### How to Set Up Layer 5 (Knowledge Base)
+
+Layer 5 is optional but powerful. Point it at any directory of notes/docs:
+
+1. Create a CLAUDE.md inside your knowledge base directory
+2. Run `cd /path/to/your/vault && claude` to give Claude full access
+3. The vault becomes a self-improving loop: more notes → more context → better analysis
+
+Obsidian, Logseq, or any flat-file note system works. The key is that Claude can read and write to it.
 
 ## Self-Improvement Loop
 
@@ -90,6 +100,7 @@ ClaudeOS/
   CLAUDE.local.md                  # Personal overrides (git-ignored)
   .gitignore                       # Ignores local files, logs, sessions
   .mcp.json                        # Project-scoped MCP server config
+  setup.sh                         # First-time setup script
   tasks/
     NOTES.md                       # In-flight decision tracking
   .claude/
@@ -110,7 +121,12 @@ ClaudeOS/
       testing.md                   # TDD, coverage, test isolation
       security.md                  # Secrets, input safety, error messages
       operations.md                # Deployments, destructive actions, resources
+      platform-selection.md        # When to use Claude vs other AI platforms
+      multi-platform-workflow.md   # 6-phase development lifecycle
+      token-budgeting.md           # Cost management and monitoring
     errors/                        # Error log + promoted patterns
+      LOG.md                       # Individual error entries
+      PATTERNS.md                  # Recurring patterns (3+ occurrences)
     hindsight/                     # Layer 4: Behavioral pattern learning
       PATTERNS.md                  # Extracted patterns from past sessions
     logs/                          # Structured event/incident logs (git-ignored)
@@ -119,6 +135,7 @@ ClaudeOS/
       session-end.sh              # Layer 2: PRIMER.md rewriter (Stop)
       hindsight-extract.sh        # Layer 4: Pattern extraction (Stop)
       pre-compact.sh              # Archive transcript before compaction (PreCompact)
+      block-dangerous.sh          # Safety guard for destructive commands (PreToolUse)
     sessions/                      # Auto-archived session transcripts (git-ignored)
 ```
 
@@ -129,6 +146,12 @@ Project-wide manifest. Keep it concise and high-level. Push detailed policies in
 
 ### `CLAUDE.local.md`
 Personal overrides and experimental behavior. Git-ignored. Takes precedence over CLAUDE.md when instructions conflict. Use for testing new instructions before promoting to shared config. Delete entries once promoted.
+
+To create your own:
+```bash
+cp CLAUDE.local.md.example CLAUDE.local.md
+# Edit with your personal preferences
+```
 
 ### `.claude/PRIMER.md`
 Session handoff document. Rewritten at the end of every session by the Stop hook. Contains: active project, last completed task, next steps, open blockers, and session notes. Ensures Claude picks up exactly where the last session left off.
@@ -164,13 +187,13 @@ Write descriptions in third person with trigger phrases. Claude undertriggers by
 Two skill categories: **Capability Uplift** (gives Claude abilities it lacks — web scraping, browser testing, PDF creation) and **Encoded Preference** (guides Claude to follow team-specific workflows — TDD, commit formats, review checklists). Skills are an open standard — they work across Claude Code, Gemini CLI, Codex CLI, and Cursor without modification.
 
 ### `.claude/errors/`
-Error capture. `LOG.md` records failures. `PATTERNS.md` surfaces recurring issues (3+).
+Error capture. `LOG.md` records individual failures. `PATTERNS.md` surfaces recurring issues (3+ occurrences).
 
 ### `.claude/hindsight/`
 Behavioral learning. `PATTERNS.md` captures how Claude should respond differently based on past sessions.
 
 ### `.claude/logs/`
-Structured event and incident logs from hooks. Git-ignored (can grow large). Files: `events.jsonl`, `incidents.jsonl`.
+Structured event and incident logs from hooks. Git-ignored (can grow large).
 
 ### `.claude/hooks/`
 Automation wired via `settings.json`:
@@ -184,7 +207,7 @@ Automation wired via `settings.json`:
 In-flight decision tracking for complex tasks. Enables coherence across context resets.
 
 ### `.mcp.json`
-Project-scoped MCP server configuration. Keeps integrations isolated from global config.
+Project-scoped MCP server configuration. Keeps integrations isolated from global config. Add your MCP servers here.
 
 ### Subdirectory CLAUDE.md Files
 For larger projects, add `CLAUDE.md` files in subdirectories (e.g., `src/CLAUDE.md`, `tests/CLAUDE.md`, `infra/CLAUDE.md`). Claude discovers these lazily when working in that subtree. This provides fine-grained local guidance without bloating the root manifest.
@@ -198,7 +221,7 @@ How agents, skills, and commands work together:
 
 Prefer skills over commands for repeatable workflows. Use commands for side-effect operations that need explicit user initiation. Use agents when the work benefits from context isolation or specialized tool access.
 
-## Skills
+## Included Skills
 
 | Skill | Purpose | Sub-skills |
 |-------|---------|------------|
@@ -209,7 +232,7 @@ Prefer skills over commands for repeatable workflows. Use commands for side-effe
 
 **Super skills** chain sub-skills into a single invocation.
 
-## Agents
+## Included Agents
 
 | Agent | Purpose | Model | Tools |
 |-------|---------|-------|-------|
@@ -217,7 +240,7 @@ Prefer skills over commands for repeatable workflows. Use commands for side-effe
 | `policy-refiner` | Self-improvement — analyzes patterns and proposes manifest updates | sonnet | Read, Glob, Grep, Write |
 | `_template` | Canonical agent structure for creating new agents | -- | -- |
 
-## Commands
+## Included Commands
 
 | Command | Description |
 |---------|-------------|
@@ -225,30 +248,7 @@ Prefer skills over commands for repeatable workflows. Use commands for side-effe
 | `/youtube-pipeline <topic>` | Full research pipeline: YouTube → NotebookLM → Obsidian |
 | `/update-context` | Trigger self-improvement: analyze sessions → propose updates → review |
 
-## Obsidian Integration (Layer 5)
-
-The Obsidian vault at `~/Desktop/Obsidian/Obsidian/` is Claude's knowledge base. When Claude runs from the vault, every note is available as context.
-
-- **CLAUDE.md** inside the vault is the "brain within the brain"
-- **research/** directory holds pipeline output as Obsidian-compatible markdown with `[[wikilinks]]`
-- The vault is a self-improving loop: more research → more context → better analysis → updated CLAUDE.md → repeat
-
-To use: `cd ~/Desktop/Obsidian/Obsidian && claude`
-
-## Agent Teams (Experimental)
-
-Agent teams are a separate primitive from subagents. Each teammate is an independent Claude Code session with its own context window.
-
-- Enable: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
-- Sweet spot: 3-5 teammates, 5-6 tasks per teammate
-- Each teammate must own non-overlapping files
-- Use `TaskCompleted` hooks for quality gates
-- Use `TeammateIdle` hooks to keep teammates working or shut them down
-- Token cost scales with team size (up to ~7x in plan mode)
-
-Default to subagents for most work. Use teams only for adversarial research, non-overlapping parallel work, or when inter-agent messaging adds value.
-
-## Multi-Platform Development
+## Multi-Platform Workflow
 
 ClaudeOS is Claude Code-primary but designed for a multi-AI workflow. Different platforms excel at different tasks — use each for its core strength.
 
@@ -277,10 +277,26 @@ See `.claude/rules/` for full guidance:
 | `testing.md` | TDD, coverage, test isolation |
 | `security.md` | Secrets, input safety, error messages |
 | `operations.md` | Deployments, destructive actions, resources |
-| `platform-selection.md` | When to use Claude vs OpenAI vs Gemini vs Perplexity |
-| `multi-platform-workflow.md` | 6-phase development lifecycle across platforms |
+| `platform-selection.md` | When to use Claude vs other AI platforms |
+| `multi-platform-workflow.md` | 6-phase development lifecycle |
 | `token-budgeting.md` | Agentic mode costs, monitoring, platform comparison |
+
+## Getting Started
+
+After cloning, run:
+```bash
+./setup.sh
+```
+
+This makes hooks executable and creates your personal config files. Then customize:
+
+1. **Edit `CLAUDE.md`** — Replace this template content with your project-specific rules
+2. **Edit `.mcp.json`** — Add your MCP servers (Supabase, Slack, GitHub, etc.)
+3. **Create `CLAUDE.local.md`** — Personal overrides (git-ignored)
+4. **Add skills** — Copy `.claude/skills/_template/` for each new skill
+5. **Add agents** — Copy `.claude/agents/_template.md` for each new agent
+6. **Start Claude** — `claude` and the 5-layer system activates automatically
 
 ## Status
 
-All 5 memory layers implemented. Self-improvement loop (observe → reflect → commit) fully wired. Three skills, two agents, three commands, seven rule files, five hooks built. Multi-platform workflow architecture documented. Research-verified against 7 official Anthropic sources + cross-platform comparison analysis.
+All 5 memory layers implemented. Self-improvement loop (observe → reflect → commit) fully wired. Three skills, two agents, three commands, seven rule files, five hooks built. Multi-platform workflow architecture documented.

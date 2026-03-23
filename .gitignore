@@ -8,6 +8,32 @@ CLAUDE.local.md
 # Structured logs (local only, can grow large)
 .claude/logs/
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+.npm
+*.tgz
+
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+
 # OS files
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace

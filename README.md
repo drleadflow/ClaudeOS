@@ -1,87 +1,164 @@
 # ClaudeOS
 
-The reference template for structuring Claude Code projects to maximize performance.
+The reference template for structuring Claude Code projects to maximize performance. Clone it, run setup, and Claude operates at its best from the first prompt.
 
-## What Is This
+## The Problem
 
-ClaudeOS defines the directory layout, memory architecture, self-improvement loop, configuration patterns, and conventions that every new Claude Code project should start from. Clone it, customize it, and let Claude operate at its best from the first prompt.
+Every Claude Code session starts from zero. No memory of past sessions, no behavioral learning, no context about what changed. You re-brief Claude every time.
 
-## Architecture
+## The Solution
 
-**5-Layer Memory System:**
-1. **Rules** (`CLAUDE.md`) — permanent project instructions
-2. **Primer** (`.claude/PRIMER.md`) — session handoff, auto-updated every session
-3. **Memory** (`memory.sh`) — live git context injected at session start
-4. **Hindsight** (`PATTERNS.md`) — behavioral patterns extracted from past sessions
-5. **Knowledge Base** (Obsidian vault) — full knowledge base as working directory
+ClaudeOS gives Claude a 5-layer memory system that activates automatically:
 
-**Self-Improvement Loop:** Observe (hooks capture signals) → Reflect (policy-refiner analyzes patterns) → Commit (gated updates via `/update-context`)
+| Layer | What It Does | How It Works |
+|-------|-------------|--------------|
+| **1. Rules** | Permanent project instructions | `CLAUDE.md` + `.claude/rules/` — always loaded |
+| **2. Primer** | Session-to-session handoff | `.claude/PRIMER.md` — auto-rewritten every session end |
+| **3. Memory** | Live git context | `memory.sh` hook — injects branch, commits, modified files at session start |
+| **4. Hindsight** | Behavioral learning | `PATTERNS.md` — extracts how Claude should behave differently, not just what happened |
+| **5. Knowledge Base** | External vault | Any note system (Obsidian, etc.) — full knowledge base as context |
+
+Plus a **self-improvement loop**: hooks observe what happens → policy-refiner agent analyzes patterns → `/update-context` proposes changes → you approve.
 
 ## Quick Start
 
 ```bash
-# Clone the template
+# Clone
 git clone https://github.com/drleadflow/ClaudeOS.git my-project
 cd my-project
 
-# Customize CLAUDE.md with your project details
-# Add project-specific MCP servers to .mcp.json
-# Start Claude Code
+# Setup (makes hooks executable, creates personal config files)
+./setup.sh
+
+# Customize
+# 1. Edit CLAUDE.md with your project rules
+# 2. Edit .mcp.json to add your MCP servers
+# 3. Edit CLAUDE.local.md with personal preferences
+
+# Go
 claude
 ```
 
+That's it. The 5-layer system activates automatically when Claude starts.
+
+## What Happens Automatically
+
+Once set up, every Claude session gets:
+
+1. **Session Start** — `memory.sh` injects current branch, last 5 commits, modified files, untracked count
+2. **During Session** — Claude follows rules from `CLAUDE.md` + `.claude/rules/`, tracks in-flight decisions in `tasks/NOTES.md`
+3. **Before Compaction** — `pre-compact.sh` archives session state so nothing is lost
+4. **Session End** — `session-end.sh` rewrites `PRIMER.md` with what was done and what's next; `hindsight-extract.sh` extracts behavioral patterns
+5. **Next Session** — Claude reads the updated `PRIMER.md` and `PATTERNS.md`, picking up exactly where you left off
+
 ## What's Included
 
-| Component | Count | Examples |
+| Component | Count | Details |
 |-----------|-------|---------|
-| Skills | 3 + template | yt-search, research-daemon, youtube-pipeline |
-| Agents | 2 + template | self-critic, policy-refiner |
-| Commands | 3 | /yt-search, /youtube-pipeline, /update-context |
-| Rules | 7 | coding-style, testing, security, operations, platform-selection, multi-platform-workflow, token-budgeting |
-| Hooks | 5 | PreToolUse safety guard, SessionStart context, Stop session-end + hindsight, PreCompact archive |
-| Hindsight Patterns | 4 | Loop detection, structural analysis, compact output, file ownership |
-
-## Prerequisites
-
-- [Claude Code CLI](https://claude.ai/code)
-- `pip install yt-dlp` (for YouTube search skill)
-- `pip install notebooklm-py` (for NotebookLM research skill)
-- [Obsidian](https://obsidian.md/) (optional, for Layer 5)
+| **Hooks** | 5 | SessionStart (git context), Stop (session handoff + hindsight), PreCompact (archive), PreToolUse (safety guard) |
+| **Agents** | 2 + template | self-critic (quality check), policy-refiner (self-improvement) |
+| **Skills** | 3 + template | yt-search, research-daemon, youtube-pipeline |
+| **Commands** | 3 | /yt-search, /youtube-pipeline, /update-context |
+| **Rules** | 7 | coding-style, testing, security, operations, platform-selection, multi-platform-workflow, token-budgeting |
+| **Hindsight Patterns** | 4 | Loop detection, structural analysis, compact output, file ownership |
 
 ## Project Structure
 
 ```
 ClaudeOS/
-  CLAUDE.md                    # Layer 1: Project manifest
-  CLAUDE.local.md              # Personal overrides (git-ignored)
-  .mcp.json                    # MCP server config
-  tasks/NOTES.md               # In-flight decision tracking
+  CLAUDE.md                        # Layer 1: Project manifest (edit this)
+  CLAUDE.local.md                  # Personal overrides (git-ignored, created by setup.sh)
+  setup.sh                         # First-time setup script
+  .mcp.json                        # MCP server config (add yours here)
+  tasks/NOTES.md                   # In-flight decision tracking
   .claude/
-    PRIMER.md                  # Layer 2: Session handoff
-    settings.json              # Hook wiring
-    agents/                    # self-critic, policy-refiner, _template
-    commands/                  # /yt-search, /youtube-pipeline, /update-context
-    skills/                    # yt-search, research-daemon, youtube-pipeline, _template
-    rules/                     # 7 modular policy files
-    hooks/                     # 5 automation scripts
-    hindsight/PATTERNS.md      # Layer 4: Behavioral learning
-    errors/                    # Error capture
-    logs/                      # Structured event logs
-    sessions/                  # Archived transcripts
+    PRIMER.md                      # Layer 2: Auto-updated session handoff
+    settings.json                  # Hook wiring (pre-configured)
+    agents/                        # self-critic, policy-refiner, _template
+    commands/                      # /yt-search, /youtube-pipeline, /update-context
+    skills/                        # yt-search, research-daemon, youtube-pipeline, _template
+    rules/                         # 7 modular policy files
+    hooks/                         # 5 automation scripts
+    hindsight/PATTERNS.md          # Layer 4: Behavioral learning
+    errors/                        # Error log + pattern promotion
+    logs/                          # Event logs (git-ignored)
+    sessions/                      # Archived transcripts (git-ignored)
 ```
+
+## Extending ClaudeOS
+
+### Add a Skill
+```bash
+cp -r .claude/skills/_template .claude/skills/my-skill
+# Edit .claude/skills/my-skill/SKILL.md
+```
+
+### Add an Agent
+```bash
+cp .claude/agents/_template.md .claude/agents/my-agent.md
+# Edit the frontmatter and instructions
+```
+
+### Add a Rule
+Create a new `.md` file in `.claude/rules/`. Claude discovers them recursively.
+
+### Add MCP Servers
+Edit `.mcp.json` to connect external services (Supabase, Slack, GitHub, etc.).
+
+### Set Up Layer 5 (Knowledge Base)
+Point Claude at a note vault for full knowledge base access:
+```bash
+# Add a CLAUDE.md to your vault
+echo "# Knowledge Base\nThis vault provides context to Claude." > ~/my-vault/CLAUDE.md
+# Run Claude from the vault
+cd ~/my-vault && claude
+```
+
+## Self-Improvement
+
+ClaudeOS gets better over time:
+
+1. **Errors** get logged to `.claude/errors/LOG.md`
+2. **Patterns** (3+ occurrences) get promoted to `.claude/errors/PATTERNS.md`
+3. **Hindsight** extracts behavioral changes after each session
+4. **`/update-context`** triggers the policy-refiner to analyze everything and propose rule updates
+5. **You review and approve** — nothing changes without your sign-off
 
 ## Multi-Platform Workflow
 
-ClaudeOS is Claude Code-primary but supports a multi-AI development lifecycle:
+ClaudeOS is Claude Code-primary but includes guidance for multi-AI workflows:
 
-1. **Research** (Perplexity) — real-time library/docs research
-2. **Architecture** (Gemini) — full codebase ingestion, gap analysis
-3. **Implementation** (Claude Code) — autonomous coding with agents
-4. **Security** (OpenAI Codex Security) — vulnerability detection
-5. **Visual Review** (OpenAI GPT-5) — screenshot vs spec comparison
-6. **Documentation** (Gemini) — video analysis, full-context docs
+| Phase | Platform | Why |
+|-------|----------|-----|
+| Research | Perplexity | Real-time web data |
+| Architecture | Gemini | 1M token context for full codebase |
+| Implementation | Claude Code | Agents, hooks, persistent memory |
+| Security | OpenAI Codex | Sandbox-validated vulnerability detection |
+| Visual Review | GPT-5 | Screenshot vs spec comparison |
+| Documentation | Gemini | Video analysis, full-context docs |
 
-See `.claude/rules/platform-selection.md` for the decision framework.
+See `.claude/rules/platform-selection.md` for the full decision framework.
+
+## Prerequisites
+
+- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code/overview) (required)
+- Python 3 (required for the safety hook)
+- `pip install yt-dlp` (optional, for YouTube search skill)
+- `pip install 'notebooklm-py[browser]'` (optional, for research skill)
+
+## FAQ
+
+**Do I need to change anything in `settings.json`?**
+No. The hooks are pre-wired. Just run `setup.sh` and they work.
+
+**Can I use this with an existing project?**
+Yes. Copy the `.claude/` directory, `CLAUDE.md`, `setup.sh`, and `.gitignore` entries into your project.
+
+**Do the skills require external dependencies?**
+The core 5-layer system works with zero dependencies beyond Claude Code and Python 3. Skills like yt-search and research-daemon need optional pip packages.
+
+**What if I don't use Obsidian?**
+Layer 5 is optional. The other 4 layers work without it. Any flat-file note system works as a knowledge base.
 
 ## License
 
