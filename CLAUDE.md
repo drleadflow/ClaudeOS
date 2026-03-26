@@ -225,6 +225,10 @@ Prefer skills over commands for repeatable workflows. Use commands for side-effe
 | `yt-search` | Search YouTube, return structured results | standalone |
 | `research-daemon` | Deep research via NotebookLM RAG + YouTube transcripts | yt-search, notebooklm |
 | `youtube-pipeline` | End-to-end: search → NotebookLM → analysis → deliverables → vault | yt-search, research-daemon |
+| `obsidian-markdown` | Create/edit Obsidian-flavored Markdown (wikilinks, embeds, callouts, properties) | standalone |
+| `obsidian-bases` | Create/edit Obsidian Bases (.base files) with views, filters, formulas | standalone |
+| `obsidian-cli` | Interact with Obsidian vaults via CLI (read, create, search, plugin dev) | standalone |
+| `json-canvas` | Create/edit JSON Canvas files (.canvas) for visual maps and flowcharts | standalone |
 | `_template` | Canonical skill structure for creating new skills | -- |
 
 **Super skills** chain sub-skills into a single invocation.

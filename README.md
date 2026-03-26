@@ -96,12 +96,13 @@ Once set up, every Claude session gets:
 
 | Component | Count | Details |
 |-----------|-------|---------|
-| **Hooks** | 5 | SessionStart (git context), Stop (session handoff + hindsight), PreCompact (archive), PreToolUse (safety guard) |
+| **Hooks** | 6 | SessionStart (git context), Stop (session handoff + hindsight + obsidian autolog), PreCompact (archive), PreToolUse (safety guard) |
 | **Agents** | 2 + template | self-critic (quality check), policy-refiner (self-improvement) |
-| **Skills** | 3 + template | yt-search, research-daemon, youtube-pipeline |
+| **Skills** | 7 + template | yt-search, research-daemon, youtube-pipeline, obsidian-markdown, obsidian-bases, obsidian-cli, json-canvas |
 | **Commands** | 3 | /yt-search, /youtube-pipeline, /update-context |
 | **Rules** | 4 | operations, platform-selection, multi-platform-workflow, token-budgeting |
 | **Hindsight Patterns** | 4 | Loop detection, structural analysis, compact output, file ownership |
+| **Obsidian Integration** | 4 skills + 1 hook | Markdown, Bases, CLI, Canvas skills + daily note autolog hook |
 
 ## Project Structure
 
@@ -119,7 +120,7 @@ ClaudeOS/
     settings.json                  # Hook wiring (pre-configured)
     agents/                        # self-critic, policy-refiner, _template
     commands/                      # /yt-search, /youtube-pipeline, /update-context
-    skills/                        # yt-search, research-daemon, youtube-pipeline, _template
+    skills/                        # yt-search, research-daemon, youtube-pipeline, obsidian-*, json-canvas, _template
     rules/                         # 4 modular policy files (add your own here)
     hooks/                         # 5 automation scripts (bash)
     hindsight/PATTERNS.md          # Layer 4: Behavioral learning
@@ -148,13 +149,34 @@ Create a new `.md` file in `.claude/rules/`. Claude discovers them recursively.
 ### Add MCP Servers
 Edit `.mcp.json` to connect external services (Supabase, Slack, GitHub, etc.).
 
-### Set Up Layer 5 (Knowledge Base)
-Point Claude at a note vault for full knowledge base access:
+### Set Up Layer 5 (Knowledge Base / Obsidian)
+
+ClaudeOS includes 4 Obsidian skills out of the box: `obsidian-markdown`, `obsidian-bases`, `obsidian-cli`, and `json-canvas`. These give Claude full fluency with Obsidian-flavored Markdown, Bases databases, the Obsidian CLI, and Canvas files.
+
+**Connect your vault:**
 ```bash
 # Add a CLAUDE.md to your vault
 echo "# Knowledge Base" > ~/my-vault/CLAUDE.md
 # Run Claude from the vault
 cd ~/my-vault && claude
+```
+
+**Enable auto-logging to daily notes (optional):**
+
+The `obsidian-autolog.sh` hook automatically logs session summaries to your Obsidian daily note at session end.
+
+1. Edit `.claude/hooks/obsidian-autolog.sh` and set `OBSIDIAN_VAULT` to your vault path
+2. Add this Stop hook to `.claude/settings.json` inside the `"Stop"` array:
+
+```json
+{
+  "hooks": [
+    {
+      "type": "command",
+      "command": "bash .claude/hooks/obsidian-autolog.sh"
+    }
+  ]
+}
 ```
 
 ## Global Rules (Optional Power-Up)
@@ -254,7 +276,7 @@ Yes. Copy the `.claude/` directory, `CLAUDE.md`, `setup.sh` (or `setup.ps1`), an
 The core 5-layer system works with zero dependencies beyond Claude Code and Python 3. Skills like yt-search and research-daemon need optional pip packages.
 
 **What if I don't use Obsidian?**
-Layer 5 is optional. The other 4 layers work without it. Any flat-file note system works as a knowledge base.
+Layer 5 is optional. The other 4 layers work without it. The Obsidian skills are included but only activate when you work with `.md` files in an Obsidian vault, `.base` files, or `.canvas` files. Any flat-file note system works as a knowledge base.
 
 **Does this work on Windows?**
 Yes. The hooks are bash scripts, which run through Git Bash (included with Git for Windows) or WSL. Claude Code on Windows uses bash automatically if it's available.
