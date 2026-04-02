@@ -2,6 +2,8 @@
 
 ## Available Agents
 
+Located in `~/.claude/agents/`:
+
 | Agent | Purpose | When to Use |
 |-------|---------|-------------|
 | planner | Implementation planning | Complex features, refactoring |
@@ -36,3 +38,12 @@ Launch 3 agents in parallel:
 # BAD: Sequential when unnecessary
 First agent 1, then agent 2, then agent 3
 ```
+
+## Multi-Perspective Analysis
+
+For complex problems, use split role sub-agents:
+- Factual reviewer
+- Senior engineer
+- Security expert
+- Consistency reviewer
+- Redundancy checker

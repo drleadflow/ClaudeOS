@@ -96,11 +96,13 @@ Once set up, every Claude session gets:
 
 | Component | Count | Details |
 |-----------|-------|---------|
-| **Hooks** | 6 | SessionStart (git context), Stop (session handoff + hindsight + obsidian autolog), PreCompact (archive), PreToolUse (safety guard) |
+| **Hooks** | 6 | SessionStart (git context), Stop (session handoff + hindsight + Obsidian autolog), PreCompact (archive), PreToolUse (safety guard) |
 | **Agents** | 2 + template | self-critic (quality check), policy-refiner (self-improvement) |
-| **Skills** | 7 + template | yt-search, research-daemon, youtube-pipeline, obsidian-markdown, obsidian-bases, obsidian-cli, json-canvas |
-| **Commands** | 3 | /yt-search, /youtube-pipeline, /update-context |
-| **Rules** | 4 | operations, platform-selection, multi-platform-workflow, token-budgeting |
+| **Workforce** | 6 roles | researcher, builder, reviewer, tester, auditor, ops — persistent memory per role |
+| **Skills** | 9 + template | team-up, vet-repo, yt-search, research-daemon, youtube-pipeline, obsidian-markdown, obsidian-bases, obsidian-cli, json-canvas |
+| **Commands** | 6 | /team-up, /vet-repo, /template-project, /yt-search, /youtube-pipeline, /update-context |
+| **Rules** | 5 | operations, platform-selection, multi-platform-workflow, token-budgeting, team-evaluation |
+| **Global Rule Examples** | 16 common + 5 TypeScript | Coding style, testing, security, orchestration, speed, deviation prevention, and more |
 | **Hindsight Patterns** | 4 | Loop detection, structural analysis, compact output, file ownership |
 | **Obsidian Integration** | 4 skills + 1 hook | Markdown, Bases, CLI, Canvas skills + daily note autolog hook |
 
@@ -119,14 +121,69 @@ ClaudeOS/
     PRIMER.md                      # Layer 2: Auto-updated session handoff
     settings.json                  # Hook wiring (pre-configured)
     agents/                        # self-critic, policy-refiner, _template
-    commands/                      # /yt-search, /youtube-pipeline, /update-context
-    skills/                        # yt-search, research-daemon, youtube-pipeline, obsidian-*, json-canvas, _template
-    rules/                         # 4 modular policy files (add your own here)
+    commands/                      # /team-up, /vet-repo, /template-project, /yt-search, /youtube-pipeline, /update-context
+    skills/                        # team-up, vet-repo, yt-search, research-daemon, youtube-pipeline, obsidian-*, json-canvas, _template
+    workforce/                     # 6-role agent team with persistent memory
+      researcher/                  # profile.md + memory.md
+      builder/                     # profile.md + memory.md
+      reviewer/                    # profile.md + memory.md
+      tester/                      # profile.md + memory.md
+      auditor/                     # profile.md + memory.md
+      ops/                         # profile.md + memory.md
+    rules/                         # 5 modular policy files (add your own here)
     hooks/                         # 5 automation scripts (bash)
     hindsight/PATTERNS.md          # Layer 4: Behavioral learning
     errors/                        # Error log + pattern promotion
     logs/                          # Event logs (git-ignored)
     sessions/                      # Archived transcripts (git-ignored)
+```
+
+## Workforce System
+
+ClaudeOS includes a 6-role agent team that can be orchestrated via `/team-up`:
+
+| Role | What It Does | Access Level |
+|------|-------------|--------------|
+| **researcher** | Web search, docs, codebase exploration | Read-only |
+| **builder** | Code implementation, feature building | Git worktree (isolated) |
+| **reviewer** | Code quality, security, correctness | Read-only |
+| **tester** | Test execution, coverage validation | Read + test files only |
+| **auditor** | System health inspection via MCP tools | Read-only on services |
+| **ops** | Deployments, CI/CD, infrastructure | Full access with gates |
+
+Each role has a **profile** (identity, tools, constraints, reporting format) and **memory** (learnings that persist across sessions). When you run `/team-up`, Claude:
+
+1. Decomposes your task into subtasks
+2. Assigns the right roles
+3. Spawns agents in parallel waves
+4. Collects results and synthesizes a report
+5. Saves learnings for next time
+
+```bash
+# Example
+/team-up "Build a REST API with auth, tests, and deploy to staging"
+# → spawns: 1 researcher + 2 builders + 1 reviewer + 1 tester + 1 ops
+```
+
+## Security Auditing
+
+Before cloning any GitHub repo, run `/vet-repo` to get a security rating:
+
+```bash
+/vet-repo https://github.com/some-org/some-repo
+# → checks: ownership, activity, license, install scripts, dependencies, entry points, secrets
+# → returns: SAFE / CAUTION / DANGER
+```
+
+## Scaffolding New Projects
+
+Create a new project from the ClaudeOS template:
+
+```bash
+/template-project my-new-project
+/template-project my-new-project ~/Desktop/projects/
+# → copies full ClaudeOS structure including workforce, skills, hooks, agents
+# → initializes git
 ```
 
 ## Extending ClaudeOS
@@ -181,19 +238,23 @@ The `obsidian-autolog.sh` hook automatically logs session summaries to your Obsi
 
 ## Global Rules (Optional Power-Up)
 
-ClaudeOS works great as a project template. But you can also install **global rules** that apply to every Claude Code project on your machine. These enforce coding style, testing standards, security checks, and workflow patterns across all repos.
+ClaudeOS works great as a project template. But you can also install **global rules** that apply to every Claude Code project on your machine. These enforce coding style, testing standards, security checks, orchestration patterns, and workflow discipline across all repos.
 
 ### Install Global Rules
 
 ```bash
-# Create the global rules directory
+# Create the global rules directories
 mkdir -p ~/.claude/rules/common
+mkdir -p ~/.claude/rules/typescript
 
-# Copy the example global rules into place
+# Copy common rules (apply to all projects)
 cp -r .claude/examples/global-rules/* ~/.claude/rules/common/
+
+# Copy TypeScript rules (apply to TS/JS projects)
+cp -r .claude/examples/typescript-rules/* ~/.claude/rules/typescript/
 ```
 
-### What's Included
+### Common Rules (16 files — all projects)
 
 | Rule File | What It Enforces |
 |-----------|------------------|
@@ -206,12 +267,29 @@ cp -r .claude/examples/global-rules/* ~/.claude/rules/common/
 | `agents.md` | When to use which agent, parallel execution patterns |
 | `hooks.md` | Hook types, auto-accept permissions, TodoWrite best practices |
 | `patterns.md` | Repository pattern, API response format, skeleton projects |
+| `speed-efficiency.md` | Parallel everything, minimize round trips, batch operations |
+| `autonomous-resolution.md` | 5-level resolution hierarchy — exhaust automated options before asking the user |
+| `orchestration.md` | Manager-Worker pattern, wave-based parallel execution, worker rules |
+| `build-quality.md` | Async patterns, event loop safety, TypeScript strictness, API design, dependency management |
+| `system-design-patterns.md` | Caching, circuit breaker, rate limiting, message queues, microservice principles |
+| `agent-architecture.md` | Agent design (role/goal/tools/memory/constraints), self-learning, MCP server patterns |
+| `deviation-prevention.md` | RALPH loop, scope lock, red flags table, loop protection for autonomous execution |
+
+### TypeScript Rules (5 files — TS/JS projects)
+
+| Rule File | What It Enforces |
+|-----------|------------------|
+| `coding-style.md` | TypeScript-specific style: strict mode, branded types, discriminated unions |
+| `testing.md` | Vitest patterns, test file organization, mock best practices |
+| `patterns.md` | TypeScript design patterns, type utilities, error handling patterns |
+| `hooks.md` | TypeScript-specific hook patterns, type-safe event handling |
+| `security.md` | TypeScript security: input validation with zod, safe type narrowing |
 
 These are **optional** — ClaudeOS works without them. But if you want Claude to follow consistent standards across every project, they're a one-time setup.
 
 ### Customize
 
-Edit any file in `~/.claude/rules/common/` to match your preferences. Claude reads them automatically for every project.
+Edit any file in `~/.claude/rules/common/` or `~/.claude/rules/typescript/` to match your preferences. Claude reads them automatically for every project. Add language-specific rule directories as needed (e.g., `~/.claude/rules/python/`).
 
 ## Self-Improvement
 

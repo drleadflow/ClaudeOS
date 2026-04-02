@@ -24,6 +24,13 @@ echo "Making hooks executable..."
 chmod +x .claude/hooks/*.sh 2>/dev/null || true
 echo "  Done."
 
+# Create workforce directories if they don't exist
+echo "Setting up workforce directories..."
+for role in researcher builder reviewer tester auditor ops; do
+    mkdir -p ".claude/workforce/$role/history"
+done
+echo "  Done."
+
 # Create CLAUDE.local.md if it doesn't exist
 if [ ! -f "CLAUDE.local.md" ]; then
     echo "Creating CLAUDE.local.md (personal overrides, git-ignored)..."
@@ -117,4 +124,9 @@ echo "  2. Edit .mcp.json to add your MCP servers"
 echo "  3. Edit CLAUDE.local.md with personal preferences"
 echo "  4. Run: claude"
 echo ""
-echo "The 5-layer memory system will activate automatically."
+echo "Included:"
+echo "  - 5-layer memory system (activates automatically)"
+echo "  - 6-role workforce (researcher, builder, reviewer, tester, auditor, ops)"
+echo "  - /team-up — parallel agent orchestration"
+echo "  - /vet-repo — GitHub repo security audit"
+echo "  - /template-project — scaffold new projects from this template"

@@ -25,6 +25,8 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.secrets
+*.secrets
 
 # OS files
 .DS_Store

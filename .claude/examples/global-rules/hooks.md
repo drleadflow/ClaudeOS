@@ -12,7 +12,7 @@ Use with caution:
 - Enable for trusted, well-defined plans
 - Disable for exploratory work
 - Never use dangerously-skip-permissions flag
-- Configure `allowedTools` in settings instead
+- Configure `allowedTools` in `~/.claude.json` instead
 
 ## TodoWrite Best Practices
 
@@ -21,3 +21,10 @@ Use TodoWrite tool to:
 - Verify understanding of instructions
 - Enable real-time steering
 - Show granular implementation steps
+
+Todo list reveals:
+- Out of order steps
+- Missing items
+- Extra unnecessary items
+- Wrong granularity
+- Misinterpreted requirements

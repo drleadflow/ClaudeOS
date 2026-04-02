@@ -112,15 +112,42 @@ ClaudeOS/
       policy-refiner.md            # Self-improvement: proposes manifest updates
     commands/                      # Slash commands
       update-context.md            # Gated self-improvement workflow
+      team-up.md                   # Invoke /team-up orchestrator
+      vet-repo.md                  # Invoke /vet-repo security audit
+      template-project.md          # Scaffold a new project from this template
     skills/                        # Repeatable tasks (folder-based)
       _template/                   # Canonical skill structure
         SKILL.md                   # Skill definition with gotchas section
         references/                # Examples, scripts, templates (progressive disclosure)
+      team-up/                     # Auto-team orchestrator
+        SKILL.md                   # Decomposes tasks, assigns workforce, runs waves
+      vet-repo/                    # GitHub repo security audit
+        SKILL.md                   # SAFE/CAUTION/DANGER rating before cloning
+    workforce/                     # Persistent agent team (6 roles)
+      researcher/                  # Web search, docs, codebase exploration
+        profile.md                 # Role definition, tools, constraints
+        memory.md                  # Persistent learnings across sessions
+      builder/                     # Code implementation (git worktree isolation)
+        profile.md
+        memory.md
+      reviewer/                    # Code quality, security, correctness
+        profile.md
+        memory.md
+      tester/                      # Test execution, coverage validation
+        profile.md
+        memory.md
+      auditor/                     # System health inspection via MCP
+        profile.md
+        memory.md
+      ops/                         # Deployments, CI/CD, infrastructure
+        profile.md
+        memory.md
     rules/                         # Modular policy files (keeps CLAUDE.md lean)
       operations.md                # Deployments, destructive actions, resources
       platform-selection.md        # When to use Claude vs other AI platforms
       multi-platform-workflow.md   # 6-phase development lifecycle
       token-budgeting.md           # Cost management and monitoring
+      team-evaluation.md           # Auto SOLO vs TEAM assessment
     errors/                        # Error log + promoted patterns
       LOG.md                       # Individual error entries
       PATTERNS.md                  # Recurring patterns (3+ occurrences)
@@ -222,6 +249,8 @@ Prefer skills over commands for repeatable workflows. Use commands for side-effe
 
 | Skill | Purpose | Sub-skills |
 |-------|---------|------------|
+| `team-up` | Auto-team orchestrator — decomposes tasks, assigns workforce roles, runs parallel waves | workforce profiles |
+| `vet-repo` | Security audit GitHub repos before cloning — SAFE/CAUTION/DANGER rating | standalone |
 | `yt-search` | Search YouTube, return structured results | standalone |
 | `research-daemon` | Deep research via NotebookLM RAG + YouTube transcripts | yt-search, notebooklm |
 | `youtube-pipeline` | End-to-end: search → NotebookLM → analysis → deliverables → vault | yt-search, research-daemon |
@@ -232,6 +261,38 @@ Prefer skills over commands for repeatable workflows. Use commands for side-effe
 | `_template` | Canonical skill structure for creating new skills | -- |
 
 **Super skills** chain sub-skills into a single invocation.
+
+## Workforce System
+
+ClaudeOS includes a 6-role agent workforce with persistent memory. Each role has a defined identity, tool access, constraints, and reporting format. Memory persists across sessions so agents learn from past work.
+
+| Role | Purpose | Access |
+|------|---------|--------|
+| **researcher** | Web search, docs, codebase exploration | Read-only |
+| **builder** | Code implementation, feature building | Git worktree isolation |
+| **reviewer** | Code quality, security, correctness | Read-only |
+| **tester** | Test execution, coverage validation | Read + test files only |
+| **auditor** | System health inspection via MCP | Read-only on all services |
+| **ops** | Deployments, CI/CD, infrastructure | Full access with approval gates |
+
+### How It Works
+
+1. **Auto-evaluate**: Every non-trivial task is assessed as SOLO or TEAM (see `.claude/rules/team-evaluation.md`)
+2. **Decompose**: Tasks are broken into independent subtasks and grouped into parallel waves
+3. **Spawn**: Each agent gets its role profile, memory, task brief, and team context
+4. **Execute**: Waves run in parallel — agents resolve unknowns autonomously before escalating
+5. **Learn**: Each agent writes learnings to its `memory.md` after completing work
+6. **Report**: Manager synthesizes results into a single coherent report
+
+### Invoke Manually
+
+```
+/team-up "Build the new API endpoint with tests and deploy to staging"
+/team-up "Audit all connected accounts for missing configurations"
+```
+
+Profiles: `.claude/workforce/{role}/profile.md`
+Memory: `.claude/workforce/{role}/memory.md`
 
 ## Included Agents
 
@@ -245,6 +306,9 @@ Prefer skills over commands for repeatable workflows. Use commands for side-effe
 
 | Command | Description |
 |---------|-------------|
+| `/team-up <description>` | Spin up a parallel agent team for a project |
+| `/vet-repo <github-url>` | Security audit a GitHub repo before cloning |
+| `/template-project <name> [path]` | Scaffold a new project from the ClaudeOS template |
 | `/yt-search <query>` | Search YouTube from the terminal |
 | `/youtube-pipeline <topic>` | Full research pipeline: YouTube → NotebookLM → Obsidian |
 | `/update-context` | Trigger self-improvement: analyze sessions → propose updates → review |
@@ -278,8 +342,9 @@ See `.claude/rules/` for full guidance:
 | `platform-selection.md` | When to use Claude vs other AI platforms |
 | `multi-platform-workflow.md` | 6-phase development lifecycle |
 | `token-budgeting.md` | Agentic mode costs, monitoring, platform comparison |
+| `team-evaluation.md` | Auto SOLO vs TEAM assessment, workforce roles |
 
-**Note:** Common rules (coding-style, testing, security) belong in your global `~/.claude/rules/` so they apply to all projects. This template includes only rules specific to the ClaudeOS workflow. Add your own project-specific rules here.
+**Note:** Common rules belong in your global `~/.claude/rules/common/` so they apply to all projects. This template ships 16 common rules and 5 TypeScript-specific rules as examples in `.claude/examples/`. Copy them to your global rules directory during setup. This template includes only rules specific to the ClaudeOS workflow in `.claude/rules/`. Add your own project-specific rules there.
 
 ## Getting Started
 
@@ -299,4 +364,4 @@ This makes hooks executable and creates your personal config files. Then customi
 
 ## Status
 
-All 5 memory layers implemented. Self-improvement loop (observe → reflect → commit) fully wired. Three skills, two agents, three commands, four rule files, five hooks built. Multi-platform workflow architecture documented. Common rules (coding-style, testing, security) belong in your global `~/.claude/rules/` — this template includes only workflow-specific rules.
+All 5 memory layers implemented. Self-improvement loop (observe → reflect → commit) fully wired. Nine skills, two agents, six commands, five project rule files, six hooks built. 6-role workforce system with persistent memory. 16 common global rules + 5 TypeScript global rules shipped as examples. Multi-platform workflow architecture documented.

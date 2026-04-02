@@ -14,10 +14,14 @@ Before ANY commit:
 
 ## Secret Management
 
-- NEVER hardcode secrets in source code
-- ALWAYS use environment variables or a secret manager
+- NEVER hardcode secrets in source code or shell config files
+- All secrets live in `~/.env.secrets` (chmod 600, owner-only)
+- `~/.env.secrets` is sourced by `~/.zshrc` — never put secrets directly in `.zshrc`
+- `~/.gitignore_global` prevents accidental commits of `.env.secrets` and `*.secrets`
+- Reference secrets as `$VAR_NAME` in code/config — never the raw value
 - Validate that required secrets are present at startup
 - Rotate any secrets that may have been exposed
+- If you ever see a secret value in a file that could be committed, flag it IMMEDIATELY
 
 ## Security Response Protocol
 
