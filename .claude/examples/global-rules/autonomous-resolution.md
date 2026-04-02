@@ -1,7 +1,7 @@
 # Autonomous Resolution — Don't Ask, Find Out
 
 ## Core Principle
-Before asking Christian ANYTHING, exhaust all automated research options. His time is the most expensive resource. Agent compute is cheap.
+Before asking the user ANYTHING, exhaust all automated research options. Their time is the most expensive resource. Agent compute is cheap.
 
 ## Resolution Hierarchy (follow in order)
 
@@ -29,14 +29,14 @@ Before asking Christian ANYTHING, exhaust all automated research options. His ti
 3. Test it — run the code, check the output
 4. If it works: proceed. If not: try the next assumption.
 
-### Level 5: Ask Christian (LAST RESORT)
+### Level 5: Ask the User (LAST RESORT)
 Only escalate when:
-- The decision requires business context only Christian has (client preferences, budget, strategy)
+- The decision requires business context only the user has (client preferences, budget, strategy)
 - Multiple valid approaches exist and the choice affects architecture
 - Security/permissions decisions that could have irreversible effects
 - After ALL levels above have been exhausted
 
-## When Asking Christian
+## When Asking the User
 - State what you tried and what you found
 - Present options with tradeoffs (not just "what should I do?")
 - Include your recommendation

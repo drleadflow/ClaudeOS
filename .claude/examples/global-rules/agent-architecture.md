@@ -26,7 +26,7 @@ After every significant task:
 ### Memory Types for Agents
 - **Fact**: "GHL API uses locationId not location_id"
 - **Decision**: "We chose sqlite-vec over Pinecone"
-- **Preference**: "Christian prefers short messages"
+- **Preference**: "The user prefers short messages"
 - **Correction**: "The Slack tool name is slack_read_channel not read_channel"
 - **Pattern**: "When building MCP servers, test stdio transport first"
 

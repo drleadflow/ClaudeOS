@@ -1,7 +1,7 @@
 # Speed & Efficiency — Always Prioritize
 
 ## Core Principle
-Speed is not optional. Every task should be done as fast as possible without sacrificing correctness. Time is Christian's scarcest resource.
+Speed is not optional. Every task should be done as fast as possible without sacrificing correctness. Time is the user's scarcest resource.
 
 ## Parallel Everything
 - If 2+ tasks are independent → run them in parallel (ALWAYS)
@@ -21,7 +21,7 @@ Speed is not optional. Every task should be done as fast as possible without sac
 - Subagents for heavy research (keeps main context clean)
 - Background agents for non-blocking work
 - Don't re-read files you already have in context
-- Summarize agent results before presenting to Christian (no raw dumps)
+- Summarize agent results before presenting to the user (no raw dumps)
 
 ## Build Speed
 - Use pnpm (not npm) for all installs
@@ -41,4 +41,4 @@ Speed is not optional. Every task should be done as fast as possible without sac
 - Use tables for comparisons
 - Use bullet points for lists
 - Skip preamble and transitions
-- If Christian asks a yes/no question → answer yes or no first, then explain
+- If the user asks a yes/no question → answer yes or no first, then explain

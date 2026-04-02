@@ -3,7 +3,7 @@
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability in ClaudeOS, please report it
-responsibly by emailing **cdbleu13254@gmail.com** with:
+responsibly by opening a [GitHub Security Advisory](https://github.com/drleadflow/ClaudeOS/security/advisories/new) or emailing **security@drleadflow.com** with:
 
 - Description of the vulnerability
 - Steps to reproduce

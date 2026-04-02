@@ -32,7 +32,7 @@ Before EVERY significant action, run this mental loop:
 - Did this step move us closer to the goal? (if not: STOP and reassess)
 - Are we past 50% of expected effort with <25% of expected progress? (if yes: STOP and re-plan)
 - Did something unexpected happen? (if yes: STOP and diagnose before continuing)
-- Has the original goal changed? (if yes: STOP and confirm with Christian)
+- Has the original goal changed? (if yes: STOP and confirm with the user)
 
 ## Deviation Red Flags (STOP immediately if you catch yourself doing any of these)
 
@@ -72,7 +72,7 @@ When running multi-step autonomous tasks:
 4. Is cost/time proportional to progress?
 
 ### Hard stops:
-- 5 consecutive failures → STOP, report to Manager/Christian
+- 5 consecutive failures → STOP, report to Manager/the user
 - 30 minutes on a single subtask → STOP, reassess
 - Files modified outside scope → STOP, revert, reassess
 - Build broken and can't fix in 3 attempts → STOP, report
@@ -93,4 +93,4 @@ When changing an API contract (request/response shape, auth flow, endpoints):
 - BOTH the API and all consumers must be updated and deployed TOGETHER
 - Never deploy an API change without the frontend/client change in the same wave
 - Test the full flow end-to-end before telling the user it's done
-- Lesson learned: shipping API-side OAuth exchange codes without the frontend counterpart caused a user-facing error (2026-03-29)
+- Lesson learned: shipping API-side changes without the frontend counterpart causes user-facing errors

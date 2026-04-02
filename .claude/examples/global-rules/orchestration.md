@@ -5,7 +5,7 @@ When facing a task with multiple independent parts, ALWAYS use the Manager-Worke
 - **1 Manager** (you, the main context) orchestrates and delegates
 - **N Workers** (subagents) execute in parallel
 - Workers report back to Manager, Manager synthesizes
-- Workers NEVER ask Christian directly — they ask Manager or research independently
+- Workers NEVER ask the user directly — they ask Manager or research independently
 
 ## When to Use
 - Task has 3+ independent subtasks → spawn parallel workers
@@ -24,7 +24,7 @@ When facing a task with multiple independent parts, ALWAYS use the Manager-Worke
 ## Worker Rules
 1. **Single purpose**: Each worker does ONE thing well
 2. **Self-sufficient**: Include ALL context the worker needs in the prompt — it has no memory of prior conversation
-3. **Research before asking**: If a worker doesn't know something, it spawns its own research subagent or uses WebSearch — it does NOT escalate to Christian
+3. **Research before asking**: If a worker doesn't know something, it spawns its own research subagent or uses WebSearch — it does NOT escalate to the user
 4. **Report clearly**: Return structured results (what was done, what was found, any blockers)
 5. **Fail gracefully**: If a worker fails, report the failure with diagnosis — don't retry blindly
 
@@ -54,10 +54,10 @@ Worker hits unknown →
   2. If not found: search web (WebSearch)
   3. If not found: search memory files
   4. If still not found: report to Manager with what was tried
-  5. Manager decides: research agent, or ask Christian (LAST RESORT)
+  5. Manager decides: research agent, or ask the user (LAST RESORT)
 ```
 
-Christian is the LAST resort, not the first. Exhaust all automated options before escalating.
+the user is the LAST resort, not the first. Exhaust all automated options before escalating.
 
 ## Worker Types
 - **Builder**: writes code, creates files, implements features
@@ -75,6 +75,6 @@ When spawning multiple workers, ALWAYS use a single message with multiple Agent 
 ## Anti-Patterns (NEVER do these)
 - Sequential agents for independent tasks (wastes time)
 - One giant agent doing everything (loses focus, bloats context)
-- Workers asking Christian for information they could research
+- Workers asking the user for information they could research
 - Workers modifying the same files (merge conflicts)
 - Spawning agents without clear success criteria
